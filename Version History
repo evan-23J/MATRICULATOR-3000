@@ -1,0 +1,17 @@
+Versión 1.00:
+  * Implementación de interfaz visual para los usuarios.
+  
+  * Implementación de la opción para matricularse.
+
+Versión 2.00
+  * Implementación de opción para ver tus cursos mediante vectores.
+  
+Versión 3.00
+  * Implementación de archivo de texto.
+  * Implementación de Sign In / Log In.
+
+Versión 4.00
+  * Implementación de opción para dar de baja.
+  * Implementación de credenciales para administradores.
+  * Implementación de hashing para las contraseñas.
+  
