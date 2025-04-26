@@ -1,0 +1,25 @@
+// explicacion añadir headers
+
+Primer menu: 
+(1) Crear contraseña
+* Ingrese su ID de estudiante o administrador y luego una contraseña.
+(2) Log In 
+* Ingrese su ID y luego su contraseña. 
+
+Segundo Menu: 
+(0) Crear Usuario /Solo habilitado para administradores
+  * Ingrese el ID de estudiante para añadirlo al archivo de texto.
+
+(1) Matricular a cursos
+  * Ingrese el numero correspondiente al curso para matricularse.
+  * Al ver: "Desea salir? (Y/N)" ingresar 'Y' para salir del programa.
+
+(2) Ver los cursos en los que estas matriculado
+
+(3) Dar de baja a los cursos en los que estas matriculado
+  * Ingrese el numero correspondiente al curso al que desea darse de baja.
+  * Al ver: "Desea salir? (Y/N)" ingresar 'Y' para salir del programa.
+
+(4) Ver cursos disponibles
+
+(5) Salir del programa
