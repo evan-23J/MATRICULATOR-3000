@@ -1,4 +1,19 @@
-// explicacion añadir headers
+# Como instalar librería BCrypt:
+1. Abrir ProyectoIntegradorV2.sln en el folder MATRICULATOR-3000.
+2. Utilizar el shorcut shift+alt+a que abre el folder.
+3. Entrar al folder External y el folder libbcrypt-master.
+4. Entrar al folder include y añade los files que terminan con .h y .hpp resaltando los archivos y presionando add.
+5. Utiliza el shorcut shift+alt+a otra vez y entra al path MATRICULATOR-3000\External\libbcrypt-master\src.
+6. Añade los files que terminan con .c resaltandolos y presionando add.
+7. Haz right click sobre ProyectoIntegradorV2 en el solution explorer y baja hacia abajo y presiona properties.
+8. En properties presiona c/c++ y haz click sobre Additional Include Directories.
+9. Haz click en la flecha que aparece y presiona <Edit...>.
+10. Haz click sobre el boton del folder y dale a los 3 puntitos.
+11. Despues añade el path del folder de include. Ej: ...\MATRICULATOR-3000\External\libbcrypt-master\include
+12. Haz click sobre el boton del folder otra vez.
+13. Añade el path del folder de src. Ej: ...\MATRICULATOR-3000\External\libbcrypt-master\src
+14. Por ultimo presiona apply y ok para aplicar los cambios.
+
 
 Primer menu: 
 (1) Crear contraseña
