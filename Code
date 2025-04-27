@@ -1,0 +1,404 @@
+// Realizado por Evan Tellado y Gian Rivera
+//para correr el programa necesitas configurar la libreria bcrypt/BCrypt.hpp.
+#include "bcrypt/BCrypt.hpp" // libreria para el manejo de password hashing y sign in / log in
+#include <iostream> //libreria para cin/ cout
+#include <fstream> // libreria para manejar los archivos de texto
+#include <string>  // libreria para manipular los strings
+#include <vector> // libreria para manejar los vectores
+#include <cstdio> //libreria para renombrar el archivo
+#include <cstdlib> //libreria para manejar el command prompt
+using namespace std;
+
+//funcion para verificar user y pass de usuario
+//Gian
+bool userVerification(string name, string pass) { //Gian
+	bool nameValid = false, passValid = false, validate = false;
+	string compare;
+	ifstream passReadFile("database.txt");
+	
+	//loop que compara el name y pass linea por linea
+	while (getline(passReadFile, compare)) {
+		if (name == compare) {
+			nameValid = true;
+		}
+		if (BCrypt::validatePassword(pass, compare)) {
+			passValid = true;
+		}
+	}
+
+	if (nameValid && passValid) {
+		validate = true;
+	}
+
+	passReadFile.close();
+	return validate;
+}
+
+int seekPass(string pass) { //Gian
+	fstream fileSeek("database.txt", ios::in);
+	string tempLine;
+	int savedPos = 0;
+
+	//loop que salva la posicion donde se encuentra el pass
+	while (getline(fileSeek, tempLine)) {
+		if (BCrypt::validatePassword(pass, tempLine)) {
+			savedPos = fileSeek.tellg();
+		}
+	}
+
+	//Devuelve la posicion encontrada
+	return savedPos;
+}
+
+void newStudent() { //Evan
+	string user;
+	cout << "Ingrese ID de estudiante: ";
+	cin >> user;
+
+	ofstream createStudent("database.txt", ios::app);
+	if (!createStudent.is_open()) {
+		cout << "El archivo no se pudo abrir.\n";
+	}
+	createStudent << user << "\n";
+	createStudent.close();
+}
+
+int lineToDelete(string pass, string course) { //Gian
+	int linePos = 0, lineReturn = 0;
+	int seekPos = 0;
+	string tempLine, tempLine2;
+	ifstream deleteLineFile("database.txt");
+
+	while (getline(deleteLineFile, tempLine)) {
+		if (BCrypt::validatePassword(pass,tempLine)) {
+			seekPos = seekPass(pass);
+
+			deleteLineFile.clear();
+			deleteLineFile.seekg(seekPos);
+
+			while (getline(deleteLineFile, tempLine2)) {
+				if (tempLine2 != course) {
+					linePos++;
+				}
+				else {
+					linePos++;
+					lineReturn = linePos;
+					break;
+				}
+			}
+		}
+		linePos++;
+	}
+	deleteLineFile.close();
+	return lineReturn;
+
+}
+
+void readMyCourses(string pass, vector<string>& miscursos) { //Evan
+	fstream readCourses("database.txt", ios::in);
+	string course;
+	int passPos = 0;
+	//devuelve la posicion del password en el archivo
+	passPos = seekPass(pass);
+	//lleva el pointer a la posicion del password
+	readCourses.seekg(passPos);
+
+	miscursos.clear();
+
+	while (getline(readCourses, course)) {
+		if (course != ";") {
+			miscursos.push_back(course);
+		}
+		else {
+			break;
+		}
+	}
+
+	readCourses.close();
+}
+
+//Evan
+void matricular(vector<string>Cursos, vector<string>& miscursos,string pass) {
+	int i = 1;
+	char anothercourse = 'Y';
+	fstream Mycourses("database.txt", ios::in | ios::out);
+	for (string linea : Cursos) {
+
+		cout << "(" << i << ") " << linea << "\n";
+		i++;
+	}
+
+	do {
+		int opc;
+		cout << "Elija el curso al que desea matricular: ";
+		cin >> opc;
+		while (opc <= 0) {
+				cout << "Input Invalido, intentelo nuevamente.";
+				cin >> opc;
+		}
+		
+		if (opc > 0 && opc - 1 < Cursos.size()) {
+
+			cout << "Haz seleccionado el curso:  " << Cursos.at(opc - 1) << "\n";
+			miscursos.push_back(Cursos.at(opc - 1));
+
+			cout << "Te has matriculado con exito. \n";
+			cout << "Deseas matricularte a otro curso? (Y/N)";
+			cin >> anothercourse;
+			anothercourse = toupper(anothercourse);
+
+		}
+
+	} while (anothercourse == 'Y');
+
+	string tempLine;
+	int savedPos = 0;
+
+	savedPos = seekPass(pass);
+
+	//resetea los errores aka ios:: in / ios:: out // ios:: trunc
+	Mycourses.clear();
+	//lleva el pointer a la posicion encontrada horita
+	Mycourses.seekp(savedPos);
+
+	//pone los cursos en el file
+	for (string Micurso : miscursos) {
+		Mycourses << Micurso;
+	}
+	//parsea los estudiantes
+	Mycourses << ";" << "\n";
+	//forces el buffer a escribir 
+	Mycourses.flush();
+
+	Mycourses.close();
+}
+
+void vercursos(vector<string> miscursos,string pass) { //Evan
+	//abre el file para leer
+	fstream seeCourses("database.txt", ios::in);
+	string tempLine;
+	int savedPos = 0;
+	// devuelve la posicion donde se encuentra el password en el archivo de texto
+	savedPos = seekPass(pass);
+	//clear los flags
+	seeCourses.clear();
+	//lleva el pointer al savedPos
+	seeCourses.seekg(savedPos);
+
+	//imprime los cursos hasta que encuentre un ; y obliga al loop a salir con break;
+	while (getline(seeCourses, tempLine)) {
+		if (tempLine != ";") {
+			cout << tempLine << "\n";
+		}
+		else {
+			break;
+		}
+	}
+}
+
+void darbaja(vector<string> miscursos, string pass) { //Gian
+	
+
+	string course;
+	int deleteLine;
+
+	int i = 1;
+	int opccurso;
+	char cont = 'Y';
+
+	while (cont == 'Y') {
+
+		
+		readMyCourses(pass, miscursos);
+		if (miscursos.size() > 0) {
+			for (string cursos : miscursos) {
+
+				cout << '(' << i << ')' << cursos << "\n";
+				i++;
+			}
+			i = 1;
+			cout << "Ingrese el curso al cual desea dar de baja: ";
+			cin >> opccurso;
+			
+			deleteLine = lineToDelete(pass, miscursos.at(opccurso - 1));
+
+			if (opccurso <= miscursos.size()) {
+				fstream tempFile("temp.txt", ios::out);
+				fstream deleteCourses("database.txt", ios::in);
+				int currentLine = 0;
+
+				while (getline(deleteCourses, course)) {
+					
+					if (currentLine != deleteLine) {
+						tempFile << course << "\n";
+					}
+					currentLine++;
+				}
+
+				deleteCourses.close();
+				tempFile.close();
+
+				string fileName = "database.txt";
+				remove(fileName.c_str());
+				rename("temp.txt", fileName.c_str());
+
+				cout << "Te has dado de baja existosamente. Tus cursos ahora son: \n";
+				vercursos(miscursos, pass);
+				if (miscursos.size() > 0) {
+					cout << "Deseas realizar otra baja? (Y/N)";
+					cin >> cont;
+					cont = toupper(cont);
+				}
+				else {
+					break;
+				}
+			}
+			else {
+				cout << "Input invalido, intentelo nuevamente.";
+			}
+		}
+	}
+}
+
+int main() //Evan
+{
+	bool loggedIn = false;
+	int option;
+	string user, pass, hashPass;
+	char run = 'N'; 
+	
+	do {
+		cout << "-*-*-*-*-*-*-*- MATRICULATOR 3000 -*-*-*-*-*-*-*-*-*-*-*-\n";
+		cout << "1. Crear Password\n";
+		cout << "2. Log in\n";
+		cin >> option;
+
+		switch (option) {
+		case 1: {
+			cout << "Ingrese nombre de usuario: ";
+			cin >> user;
+			//abrir file 
+			ifstream readPassFile("database.txt");
+			string userCheck;
+			bool userExist = false;
+			//loop que corre el file y valida si el usuario se encuentra en el archivo
+			while (getline(readPassFile, userCheck)) {
+				if (user == userCheck) {
+					userExist = true;
+				}
+			}
+			//si el usuario esta presente en el archivo puede crear una contrasena
+			if (userExist) {
+				cout << "Ingrese una contrasena: ";
+				cin >> pass;
+				//genera hash
+				hashPass = BCrypt::generateHash(pass);
+
+				//abre el file para input con app para appending
+				ofstream passFile("database.txt", ios::app);
+				if (!passFile.is_open()) {
+					cout << "El archivo no se pudo abrir\n";
+				}
+				passFile << hashPass << "\n";
+				passFile.close();
+			}
+			else {
+				cout << "Usuario no existe.\n";
+			}
+			break;
+		}
+		case 2: {
+
+			cout << "Ingrese su nombre de usuario: ";
+			cin >> user;
+			cout << "Ingrese su contrasena: ";
+			cin >> pass;
+			if (userVerification(user, pass)) {
+				loggedIn = true;
+			}
+			else {
+				cout << "Tu contrasena o nombre de usuario fue incorrecto. Intentalo nuevamente\n";
+			}
+			break;
+		}
+		default: 
+			cout << "Ingrese un numero valido. \n"; 
+			break;
+
+		}
+	} while (!loggedIn);
+	
+	cout << "Acceso Garantizado!\n";
+
+
+	int opcmenu;
+	string texto, text;
+	vector<string>miscursos;
+	vector<string>Cursos = { "Ingles III GEEN 2313 \n", "Bases de Datos COMP 2800 \n",
+		"Back end Development COMP 2352 \n", "Espanol II GESP 2011 \n", "Tecnologia TECN 2010 \n" };
+
+	do {
+		//system("cls") se utiliza para eliminar el texto del command prompt
+		system("cls");
+		if (user == "Admin") {
+			cout << "(0) Nuevo Estudiante\n";
+		}
+		cout << "(1) Matricularte\n";
+		cout << "(2) Ver tus cursos\n";
+		cout << "(3) Dar de baja\n";
+		cout << "(4) Ver cursos\n";
+		cout << "(5) Salir\n";
+		cin >> opcmenu;
+
+		if (opcmenu == 1) {
+			matricular(Cursos, miscursos, pass);
+			cout << "Desea salir? (Y/N)\n"; 
+			cin >> run;
+		}
+		else if (opcmenu == 2) {
+			readMyCourses(pass, miscursos);
+			if (miscursos.size() > 0) {
+				vercursos(miscursos, pass);
+				cout << "Desea salir? (Y/N)\n";
+				cin >> run;
+			}
+			else {
+				cout << "Error. Debes matricularte primero.\n"; 		
+			}
+		}
+		else if (opcmenu == 3) {
+			readMyCourses(pass, miscursos);
+			if (miscursos.size() < 1) {
+				cout << "Error. Debes matricularte primero.\n";
+				
+			}
+			else {	
+				darbaja(miscursos, pass);
+				cout << "Desea salir? (Y/N)\n";
+				cin >> run; 
+			}
+		}
+		else if (opcmenu == 4) {
+			int k = 1;
+			for (string vcurso : Cursos) {
+				cout<< vcurso << "\n";
+				k++; 
+			}
+			cout << "Desea salir? (Y/N)\n";
+			cin >> run; 
+		}
+		else if (opcmenu == 5) {
+			run = 'Y'; 
+		}
+		else if (opcmenu == 0) {
+			newStudent();
+		}
+		else {
+			cout << "Input Invalido, Intentelo nuevamente.\n";
+		}
+		run = toupper(run); 
+	} while (run != 'Y'); 
+
+	cout << "-*-*-*--*-*-*-*-Gracias por utilizar MATRICULATOR 3000!-*-*-*-*-*-*-*-*-*-*-*-"; 
+	return 0;
+}
