@@ -14,7 +14,7 @@
 13. Añade el path del folder de src. Ej: ...\MATRICULATOR-3000\External\libbcrypt-master\src
 14. Por ultimo presiona apply y ok para aplicar los cambios.
 
-
+Al usar el programa: 
 Primer menu: 
 (1) Crear contraseña
 * Ingrese su ID de estudiante o administrador y luego una contraseña.
